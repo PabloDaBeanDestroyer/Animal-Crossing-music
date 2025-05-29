@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Animal Crossing Music by Weather</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: "Arial Rounded MT Bold", Arial, sans-serif;
+      background: #eaf6fb;
+      color: #2c3e50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      margin: 2rem 0 1rem 0;
+      text-align: center;
+    }
+    #controls {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    #music-player {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    select {
+      font-size: 1rem;
+      padding: 0.5em;
+    }
+    audio {
+      width: 300px;
+      outline: none;
+    }
+    #track-label {
+      margin-top: 0.5em;
+    }
+    #clock {
+      font-size: 4rem;
+      font-weight: bold;
+      margin: 1.5rem 0 0.5rem 0;
+      text-align: center;
+      letter-spacing: 0.05em;
+      background: #fff;
+      border-radius: 1em;
+      padding: 0.3em 1em;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      min-width: 220px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Animal Crossing Music Hourly</h1>
+    <p>Select the weather to play the matching Animal Crossing hourly music for your current time!</p>
+  </header>
+  <div id="controls">
+    <label for="weather-select">Weather:
+      <select id="weather-select">
+        <option value="sunny">Sunny</option>
+        <option value="cloudy">Cloudy</option>
+        <option value="rainy">Rainy</option>
+        <option value="snowy">Snowy</option>
+      </select>
+    </label>
+  </div>
+  <div id="clock">--:--:--</div>
+  <div id="music-player">
+    <audio id="audio-player" controls preload="metadata">
+      <source src="sunny1.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+    <div id="track-label"></div>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Pad single digits with leading zero
+      function pad(n) {
+        return n < 10 ? "0" + n : n;
+      }
+
+      // Display current time in HH:MM:SS format
+      function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').textContent =
+          pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+      }
+
+      // Get current hour for Animal Crossing (1.mp3 = 1AM, ..., 24.mp3 = midnight)
+      function getCurrentHour() {
+        let hour = new Date().getHours();
+        return hour === 0 ? 24 : hour;
+      }
+
+      // Display user-friendly hour label
+      function hourLabel(hour) {
+        let ampm = hour < 12 ? "AM" : "PM";
+        let hr = hour % 12;
+        if (hr === 0) hr = 12;
+        return `${hr}:00 ${ampm}`;
+      }
+
+      // Elements
+      const weatherSelect = document.getElementById('weather-select');
+      const audioPlayer = document.getElementById('audio-player');
+      const trackLabel = document.getElementById('track-label');
+
+      // Set the correct music track for the current time and selected weather
+      function setTrack() {
+        const weather = weatherSelect.value;
+        const hour = getCurrentHour();
+        const src = `${weather}/${hour}.mp3`;
+        audioPlayer.src = src;
+        trackLabel.textContent =
+          `Playing: ${hourLabel(hour)} (${weather.charAt(0).toUpperCase() + weather.slice(1)})`;
+        // Don't call audioPlayer.load(): it interrupts playing if user is listening!
+      }
+
+      // Update music at the start of every hour
+      function scheduleHourlyUpdate() {
+        const now = new Date();
+        const msUntilNextHour =
+          (59 - now.getMinutes()) * 60 * 1000 +
+          (60 - now.getSeconds()) * 1000 -
+          now.getMilliseconds();
+        setTimeout(function() {
+          setTrack();
+          scheduleHourlyUpdate();
+        }, msUntilNextHour + 1000);
+      }
+
+      // Update on weather change
+      weatherSelect.addEventListener('change', setTrack);
+
+      // Update clock every second
+      setInterval(updateClock, 1000);
+      updateClock();
+
+      // Initialize music and update hourly
+      setTrack();
+      scheduleHourlyUpdate();
+    });
+  </script>
+</body>
+</html>
