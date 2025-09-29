@@ -1,154 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Animal Crossing Music</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: "Arial Rounded MT Bold", Arial, sans-serif;
-      background: #eaf6fb;
-      color: #2c3e50;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      margin: 2rem 0 1rem 0;
-      text-align: center;
-    }
-    #controls {
-      margin-top: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-    }
-    #music-player {
-      margin-top: 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    select {
-      font-size: 1rem;
-      padding: 0.5em;
-    }
-    audio {
-      width: 300px;
-      outline: none;
-    }
-    #track-label {
-      margin-top: 0.5em;
-    }
-    #clock {
-      font-size: 4rem;
-      font-weight: bold;
-      margin: 1.5rem 0 0.5rem 0;
-      text-align: center;
-      letter-spacing: 0.05em;
-      background: #fff;
-      border-radius: 1em;
-      padding: 0.3em 1em;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      min-width: 220px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Animal Crossing Music</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    font-family: "Arial Rounded MT Bold", Arial, sans-serif;
+    background: #eaf6fb;
+    color: #2c3e50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    transition: background 0.3s, color 0.3s;
+  }
+  body.dark {
+    background: #000000;
+    color: #ffffff;
+  }
+  header {
+    margin: 2rem 0 1rem 0;
+    text-align: center;
+  }
+  #controls {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  #music-player {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  select, button, input[type="color"], input[type="range"] {
+    font-size: 1rem;
+    padding: 0.3em;
+    cursor: pointer;
+  }
+  audio {
+    width: 300px;
+    outline: none;
+  }
+  #track-label {
+    margin-top: 0.5em;
+  }
+  #clock {
+    font-size: 4rem;
+    font-weight: bold;
+    margin: 1.5rem 0 0.5rem 0;
+    text-align: center;
+    letter-spacing: 0.05em;
+    background: #fff;
+    border-radius: 1em;
+    padding: 0.3em 1em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    min-width: 220px;
+  }
+  /* Settings panel in top-left */
+  #settings-container {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    background: rgba(255,255,255,0.9);
+    border-radius: 0.5em;
+    padding: 0.5em 1em;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: background 0.3s, color 0.3s;
+  }
+  body.dark #settings-container {
+    background: rgba(44,62,80,0.95);
+    color: #000000;
+  }
+  #settings-container label {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  #settings-container input[type="range"], #settings-container input[type="color"] {
+    width: 100%;
+  }
+  /* Clock styling */
+#clock {
+  font-size: 4rem;
+  font-weight: bold;
+  margin: 1.5rem 0 0.5rem 0;
+  text-align: center;
+  letter-spacing: 0.05em;
+  border-radius: 1em;
+  padding: 0.3em 1em;
+  min-width: 220px;
+  transition: background 0.3s, color 0.3s;
+  background: #fff; /* default light background */
+  color: #2c3e50;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+body.dark #clock {
+  background: #000000; /* dark mode clock bg */
+  color: #eaf6fb;       /* text color contrast */
+}
+</style>
 </head>
 <body>
-  <header>
-    <h1>Animal Crossing Music Hourly</h1>
-    <p>Select the weather to play the matching Animal Crossing hourly music for your current time!</p>
-  </header>
-  <div id="controls">
-    <label for="weather-select">Weather:
-      <select id="weather-select">
-        <option value="sunny">Sunny</option>
-        <option value="cloudy">Cloudy</option>
-        <option value="rainy">Rainy</option>
-        <option value="snowy">Snowy</option>
-      </select>
-    </label>
-  </div>
-  <div id="clock">--:--</div>
-  <div id="music-player">
-    <audio id="audio-player" controls preload="metadata">
-      <source src="sunny1.mp3" type="audio/mpeg">
-      Your browser does not support the audio element.
-    </audio>
-    <div id="track-label"></div>
-  </div>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      // Pad single digits with leading zero
-      function pad(n) {
-        return n < 10 ? "0" + n : n;
+<header>
+  <h1>Animal Crossing Music Hourly</h1>
+  <p>Select the weather and enjoy seamless hourly music ✨</p>
+</header>
+
+<div id="settings-container">
+  <label for="weather-select">Weather:
+    <select id="weather-select">
+      <option value="sunny">Sunny</option>
+      <option value="cloudy">Cloudy</option>
+      <option value="rainy">Rainy</option>
+      <option value="snowy">Snowy</option>
+    </select>
+  </label>
+  <label>
+    24H Clock
+    <input type="checkbox" id="clock-format">
+  </label>
+  <label>
+    Volume
+    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+  </label>
+  <label>
+    Dark Mode
+    <input type="checkbox" id="dark-mode">
+  </label>
+  <label>
+    Background
+    <input type="color" id="bg-color" value="#eaf6fb">
+  </label>
+</div>
+
+<div id="clock">--:--</div>
+
+<div id="music-player">
+  <audio id="audio-player" controls preload="auto"></audio>
+  <div id="track-label"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  let use24Hour = false;
+  const fadeDuration = 2000;
+
+  const weatherSelect = document.getElementById('weather-select');
+  const audioPlayer = document.getElementById('audio-player');
+  const trackLabel = document.getElementById('track-label');
+  const clockFormatCheckbox = document.getElementById('clock-format');
+  const volumeSlider = document.getElementById('volume-slider');
+  const darkModeCheckbox = document.getElementById('dark-mode');
+  const bgColorPicker = document.getElementById('bg-color');
+
+  function pad(n){ return n<10?"0"+n:n; }
+
+  function updateClock(){
+    const now=new Date();
+    let h=now.getHours(), m=pad(now.getMinutes()), s=pad(now.getSeconds());
+    if(use24Hour){
+      document.getElementById('clock').textContent = pad(h)+":"+m+":"+s;
+    } else {
+      let ampm = h<12?"AM":"PM", hr = h%12; if(hr===0) hr=12;
+      document.getElementById('clock').textContent = hr+":"+m+":"+s+" "+ampm;
+    }
+  }
+
+  function getCurrentHour(){ let h=new Date().getHours(); return h===0?24:h; }
+  function hourLabel(hour){ return use24Hour ? pad(hour)+":00" : `${hour%12||12}:00 ${hour<12?"AM":"PM"}`; }
+
+  clockFormatCheckbox.addEventListener("change",(e)=>{ use24Hour=e.target.checked; updateClock(); setTrack(); });
+  volumeSlider.addEventListener("input",(e)=>{ audioPlayer.volume=e.target.value; });
+  darkModeCheckbox.addEventListener("change",(e)=>{ document.body.classList.toggle("dark", e.target.checked); });
+  bgColorPicker.addEventListener("input",(e)=>{ if(!darkModeCheckbox.checked) document.body.style.background=e.target.value; });
+
+  function crossfadeTo(newSrc){
+    const oldPlayer=audioPlayer;
+    const newPlayer=new Audio(newSrc);
+    newPlayer.loop=true;
+    newPlayer.volume=0;
+    newPlayer.play();
+    const step=50;
+    let fadeOut=setInterval(()=>{
+      if(oldPlayer.volume>0) oldPlayer.volume=Math.max(0,oldPlayer.volume-(step/fadeDuration));
+      if(newPlayer.volume<volumeSlider.value) newPlayer.volume=Math.min(volumeSlider.value,newPlayer.volume+(step/fadeDuration));
+      if(oldPlayer.volume===0&&newPlayer.volume>=volumeSlider.value){
+        clearInterval(fadeOut);
+        oldPlayer.pause();
+        oldPlayer.src=newSrc;
+        oldPlayer.volume=volumeSlider.value;
+        oldPlayer.loop=true;
+        oldPlayer.play();
       }
+    },step);
+  }
 
-      // Display current time in HH:MM:SS format
-      function updateClock() {
-        const now = new Date();
-        document.getElementById('clock').textContent =
-          pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
-      }
+  function setTrack(){
+    const weather=weatherSelect.value, hour=getCurrentHour();
+    const src=`${weather}/${hour}.mp3`;
+    if(audioPlayer.src.includes(src)) return;
+    crossfadeTo(src);
+    trackLabel.textContent = `Playing: ${hourLabel(hour)} (${weather.charAt(0).toUpperCase()+weather.slice(1)})`;
+  }
 
-      // Get current hour for Animal Crossing (1.mp3 = 1AM, ..., 24.mp3 = midnight)
-      function getCurrentHour() {
-        let hour = new Date().getHours();
-        return hour === 0 ? 24 : hour;
-      }
+  function scheduleHourlyUpdate(){
+    const now=new Date();
+    const msUntilNextHour=(60-now.getMinutes())*60*1000 - now.getSeconds()*1000 - now.getMilliseconds();
+    setTimeout(()=>{ setTrack(); scheduleHourlyUpdate(); }, msUntilNextHour+1000);
+  }
 
-      // Display user-friendly hour label
-      function hourLabel(hour) {
-        let ampm = hour < 12 ? "AM" : "PM";
-        let hr = hour % 12;
-        if (hr === 0) hr = 12;
-        return `${hr}:00 ${ampm}`;
-      }
+  weatherSelect.addEventListener('change', setTrack);
 
-      // Elements
-      const weatherSelect = document.getElementById('weather-select');
-      const audioPlayer = document.getElementById('audio-player');
-      const trackLabel = document.getElementById('track-label');
-
-      // Set the correct music track for the current time and selected weather
-      function setTrack() {
-        const weather = weatherSelect.value;
-        const hour = getCurrentHour();
-        const src = `${weather}/${hour}.mp3`;
-        audioPlayer.src = src;
-        trackLabel.textContent =
-          `Playing: ${hourLabel(hour)} (${weather.charAt(0).toUpperCase() + weather.slice(1)})`;
-        // Don't call audioPlayer.load(): it interrupts playing if user is listening!
-      }
-
-      // Update music at the start of every hour
-      function scheduleHourlyUpdate() {
-        const now = new Date();
-        const msUntilNextHour =
-          (59 - now.getMinutes()) * 60 * 1000 +
-          (60 - now.getSeconds()) * 1000 -
-          now.getMilliseconds();
-        setTimeout(function() {
-          setTrack();
-          scheduleHourlyUpdate();
-        }, msUntilNextHour + 1000);
-      }
-
-      // Update on weather change
-      weatherSelect.addEventListener('change', setTrack);
-
-      // Update clock every second
-      setInterval(updateClock, 1000);
-      updateClock();
-
-      // Initialize music and update hourly
-      setTrack();
-      scheduleHourlyUpdate();
-    });
-  </script>
+  setInterval(updateClock,1000);
+  updateClock();
+  setTrack();
+  scheduleHourlyUpdate();
+});
+</script>
 </body>
 </html>
